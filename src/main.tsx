@@ -1,11 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { AppRouter } from './AppRouter.tsx';
+import { PokedexApp } from './PokedexApp';
 
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppRouter />
+    <PokedexApp />
   </StrictMode>
 );
