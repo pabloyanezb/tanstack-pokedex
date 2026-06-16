@@ -10,8 +10,13 @@ import { usePokemonsPaginated } from '../../hooks/usePokemonsPaginated';
 export const PaginatedPage = () => {
   const navigate = useNavigate();
 
-  const { pokemons, totalPages, currentPage, isLoading } =
-    usePokemonsPaginated();
+  const {
+    pokemons,
+    totalPages,
+    currentPage,
+    isLoading,
+    onPrefetchNextPage
+  } = usePokemonsPaginated();
 
   const [favorites, setFavorites] = useState<number[]>(() => {
     const saved = localStorage.getItem('favorites');
@@ -86,6 +91,7 @@ export const PaginatedPage = () => {
           <div className="flex justify-center items-center mt-8 gap-4">
             <button
               onClick={() => navigate(`?page=${currentPage - 1}`)}
+              onMouseEnter={() => onPrefetchNextPage(currentPage - 1)}
               disabled={currentPage === 1}
               className="flex items-center gap-1 px-4 py-2 bg-red-100 border border-red-200 rounded-lg disabled:opacity-50 hover:bg-red-200 text-red-900"
             >
@@ -96,6 +102,7 @@ export const PaginatedPage = () => {
             </span>
             <button
               onClick={() => navigate(`?page=${currentPage + 1}`)}
+              onMouseEnter={() => onPrefetchNextPage(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="flex items-center gap-1 px-4 py-2 bg-red-100 border border-red-200 rounded-lg disabled:opacity-50 hover:bg-red-200 text-red-900"
             >

@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 
 import { getPokemonsByPage } from '../actions';
 
@@ -8,6 +8,7 @@ export const usePokemonsPaginated = () => {
   const pageParam = Number(searchParams.get('page') ?? '1');
   const currentPage = pageParam > 0 ? pageParam : 1;
 
+  const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ['pokemons', 'page', currentPage],
     queryFn: () => getPokemonsByPage({ currentPage }),
@@ -17,10 +18,23 @@ export const usePokemonsPaginated = () => {
   const pokemons = data?.pokemons ?? [];
   const totalPages = data?.totalPages ?? 0;
 
+  const onPrefetchNextPage = (page: number) => {
+    if (page > totalPages) return;
+    if (page < 1) return;
+    if (page === currentPage) return;
+
+    queryClient.prefetchQuery({
+      queryKey: ['pokemons', 'page', page],
+      queryFn: () => getPokemonsByPage({ currentPage: page }),
+      staleTime: 1000 * 60 * 5,
+    });
+  };
+
   return {
     pokemons,
     totalPages,
     currentPage,
     isLoading,
+    onPrefetchNextPage,
   };
 };
