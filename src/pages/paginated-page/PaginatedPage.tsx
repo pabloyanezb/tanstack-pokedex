@@ -1,26 +1,18 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
-
-import { BasicPokemon } from '../../types/basic-pokemon.interface';
+import { useNavigate } from 'react-router';
 
 import { SearchBar } from '../../components/SearchBar';
 import { FullScreenLoading } from '../../components/FullScreenLoading';
 import { PokemonCard } from '../../components/PokemonCard';
-import { getPokemonsByPage } from '../../actions';
-import { useNavigate, useSearchParams } from 'react-router';
+import { usePokemonsPaginated } from '../../hooks/usePokemonsPaginated';
 
 export const PaginatedPage = () => {
   const navigate = useNavigate();
 
-  // Obtener los parámetros de búsqueda de la URL
-  const [searchParams] = useSearchParams();
-  const pageParam = Number(searchParams.get('page') ?? '1');
-  const currentPage = pageParam > 0 ? pageParam : 1;
+  const { pokemons, totalPages, currentPage, isLoading } =
+    usePokemonsPaginated();
 
-  const [pokemons, setPokemons] = useState<BasicPokemon[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [totalPages, setTotalPages] = useState(0);
   const [favorites, setFavorites] = useState<number[]>(() => {
     const saved = localStorage.getItem('favorites');
     return saved ? JSON.parse(saved) : [];
@@ -31,22 +23,6 @@ export const PaginatedPage = () => {
   useEffect(() => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
-
-  useEffect(() => {
-    setIsLoading(true);
-    getPokemonsByPage({ currentPage: currentPage })
-      .then((data) => {
-        setPokemons(data.pokemons);
-        setTotalPages(data.totalPages);
-      })
-      .catch((error) => {
-        console.error('Error fetching pokemons:', error);
-        alert('Error fetching pokemons');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [currentPage]);
 
   const toggleFavorite = (pokemonId: number) => {
     setFavorites((prev) =>
